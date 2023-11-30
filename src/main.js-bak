@@ -1,0 +1,132 @@
+import { DirectSecp256k1HdWallet, Registry } from "@cosmjs/proto-signing";
+
+import {
+  defaultRegistryTypes as defaultStargateTypes,
+  SigningStargateClient,
+} from "@cosmjs/stargate";
+//import { msgTypes as blitScriptMsgTypes } from "../blit-client-ts/blit.script/";
+//import { MsgRunResponse } from "../blit-client-ts/blit.script/types/blit/script/msgrun";
+// blitScriptMsgTypes is an object with all the Msg types from the blit.script package
+// Array<[string, GeneratedType]>
+const myRegistry = new Registry(defaultStargateTypes);
+
+window.MsgRunResponse = MsgRunResponse; // For debugging
+
+// loop over the Array of  types and register them
+console.log(blitScriptMsgTypes);
+for (const [typeName, type] of Object.entries(blitScriptMsgTypes)) {
+  myRegistry.register(type[0], type[1]);
+}
+
+const mnemonic = // Replace with your own mnemonic
+  "about round cry leisure vague idea park drop minor double horse occur despair cool lazy floor betray network midnight bonus oak couch crime write";
+
+// Inside an async function...
+const signer = await DirectSecp256k1HdWallet.fromMnemonic(
+  mnemonic,
+  { prefix: "blit" } // Replace with your own Bech32 address prefix
+);
+const client = await SigningStargateClient.connectWithSigner(
+  "http://localhost:26657", // Replace with your own RPC endpoint
+  signer,
+  { registry: myRegistry }
+);
+
+window.client = client; // For debugging
+
+const address = (await client.signer.getAccounts())[0].address;
+const typeUrl = "/blit.script.MsgRun";
+const msgRun = client.registry.types.get(typeUrl);
+
+const message = {
+  typeUrl: typeUrl, // Same as above
+  value: msgRun.fromPartial({
+    callerAddress: address,
+    scriptAddress: address,
+    functionName: "foo",
+    kwargs: JSON.stringify({ name: "bar" }),
+  }),
+};
+const fee = {
+  amount: [
+    {
+      denom: "blit", // Use the appropriate fee denom for your chain
+      amount: "100000",
+    },
+  ],
+  gas: "100000",
+};
+
+// Inside an async function...
+// This method uses the registry you provided
+const response = await client.signAndBroadcast(address, [message], fee);
+window.response = response; // For debugging
+console.log(response);
+console.log(MsgRunResponse.fromJSON(response.msgResponses[0]));
+
+const chainId = "blit-dev";
+const addressPrefix = "blit";
+
+try {
+  await window.keplr.experimentalSuggestChain({
+    features: [],
+    chainId: chainId,
+    chainName: "Blit Development Chain",
+    rpc: "http://localhost:26657",
+    rest: "http://localhost:1317",
+    stakeCurrency: {
+      coinDenom: "blit",
+      coinMinimalDenom: "blit",
+      coinDecimals: 0,
+    },
+    bip44: {
+      coinType: 118,
+    },
+    bech32Config: {
+      bech32PrefixAccAddr: addressPrefix,
+      bech32PrefixAccPub: addressPrefix + "pub",
+      bech32PrefixValAddr: addressPrefix + "valoper",
+      bech32PrefixValPub: addressPrefix + "valoperpub",
+      bech32PrefixConsAddr: addressPrefix + "valcons",
+      bech32PrefixConsPub: addressPrefix + "valconspub",
+    },
+    currencies: [{
+        coinDenom: "blit",
+        coinMinimalDenom: "blit",
+        coinDecimals: 0,
+      }],
+    feeCurrencies: [
+      {
+        coinDenom: "blit",
+        coinMinimalDenom: "blit",
+        coinDecimals: 0,
+        gasPriceStep: { low: 0.0, average: 0.000001, high: 1 },
+      },
+    ],
+    coinType: 118,
+  });
+  await window.keplr.enable(chainId);
+  const offlineSigner = await window.getOfflineSigner(chainId);
+
+  // You can get the address/public keys by `getAccounts` method.
+  // It can return the array of address/public key.
+  // But, currently, Keplr extension manages only one address/public key pair.
+  // XXX: This line is needed to set the sender address for SigningCosmosClient.
+  const accounts = await offlineSigner.getAccounts();
+
+  // Initialize the gaia api with the offline signer that is injected by Keplr extension.
+  const cosmJS = await SigningStargateClient.connectWithSigner(
+    "http://localhost:26657",
+    offlineSigner,
+    { registry: myRegistry }
+  );
+
+  window.cosmJS = cosmJS; // For debugging
+
+  const keplrResponse = await cosmJS.signAndBroadcast(address, [message], fee);
+  window.keplrResponse = keplrResponse; // For debugging
+  console.log(keplrResponse);
+  console.log(MsgRunResponse.fromJSON(keplrResponse.msgResponses[0]));
+} catch (e) {
+  console.error(e);
+}
