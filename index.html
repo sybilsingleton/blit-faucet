@@ -1,13 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Faucet</title>
+
+    <script module type="text/javascript">
+      // JavaScript function to handle form submission
+      function handleSubmit() {
+        var address = document.getElementById('inputField').value;
+        console.log("Address: ", address);
+        // Additional handling of inputData can be done here
+        runFunction({
+          msgClient: jsClient,
+          script_address: "blit1yyey4v836rssq29ny7n0yyxtj3tkhm6ehq6t5wmnt3n7gf2chydstqygew",
+          caller_address: jsAddress,
+          function_name: "faucet",
+          kwargs: {address},
+          grantee: jsAddress
+        }).then(handleResult).catch(handleError);
+
+      }
+      function handleResult(result) {
+        console.log("Result: ", result);
+        document.getElementById('result').innerHTML = JSON.stringify(result.result, null, 2);
+      }
+      function handleError(error) {
+        console.log("Error: ", error);
+        document.getElementById('error').innerHTML = error
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <input type="text" id="inputField" placeholder="Enter Address" />
+    <button onclick="handleSubmit()">Request Testnet Coins</button>
+    <pre id="result"></pre>
+    <pre id="error"></pre>
   </body>
 </html>
