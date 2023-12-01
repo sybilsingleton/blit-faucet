@@ -23,8 +23,11 @@ import { default as blitjs, experimentalHelpers } from "@blitchain/blitjs";
 let { makeKeplrClient, makeJsClient, runFunction, queryFunction } =
   experimentalHelpers;
 
-let rpcEndpoint = "http://localhost:26657";
-let restEndpoint = "http://localhost:1317";
+//let rpcEndpoint = "http://localhost:26657";
+//let restEndpoint = "http://localhost:1317";
+let rpcEndpoint = "http://rpc.testnet.blitchain.net";
+let restEndpoint = "http://rest.testnet.blitchain.net";
+
 
 let queryClient = await blitjs.blit.ClientFactory.createLCDClient({
   restEndpoint,
