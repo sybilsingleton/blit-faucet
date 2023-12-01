@@ -15,7 +15,7 @@ declare global {
   }
 }
 // @ts-ignore
-BigInt.prototype['toJSON'] = function () {
+BigInt.prototype["toJSON"] = function () {
   return this.toString();
 };
 import { default as blitjs, experimentalHelpers } from "@blitchain/blitjs";
@@ -66,3 +66,94 @@ window.makeKeplrClient = makeKeplrClient;
 window.makeJsClient = makeJsClient;
 window.runFunction = runFunction;
 window.queryFunction = queryFunction;
+
+// JavaScript function to handle form submission
+function handleSubmit() {
+  var inputElement = document.getElementById(
+    "inputField",
+  ) as HTMLInputElement | null;
+  var address = "";
+  if (inputElement) {
+    address = inputElement.value;
+    // Continue with your logic using 'address'
+  } else {
+    console.error("Input field not found");
+  }
+  console.log("Address: ", address);
+  // Additional handling of inputData can be done here
+  clearResult();
+  runFunction({
+    msgClient: jsClient,
+    script_address:
+      "blit1yyey4v836rssq29ny7n0yyxtj3tkhm6ehq6t5wmnt3n7gf2chydstqygew",
+    caller_address: jsAddress,
+    function_name: "faucet",
+    kwargs: { address },
+    grantee: jsAddress,
+    extra_code: "",
+  })
+    .then(handleResult)
+    .catch(handleError);
+}
+
+function clearResult() {
+  const resultElement = document.getElementById("result");
+  if (resultElement) {
+    resultElement.innerHTML = "";
+  }
+
+  const errorElement = document.getElementById("error");
+  if (errorElement) {
+    errorElement.innerHTML = "";
+  }
+}
+
+function handleResult(result: any) {
+  console.log("Result: ", result);
+
+  const resultElement = document.getElementById("result");
+  if (resultElement) {
+    resultElement.innerHTML = JSON.stringify(result.result, null, 2);
+  }
+}
+function handleError(error: any) {
+  console.log("Error: ", error);
+  const errorElement = document.getElementById("error");
+  if (errorElement) {
+    errorElement.innerHTML = error.toString(); // Convert error to string if it's not already
+  }
+}
+
+function initializeFaucetUI() {
+  const app = document.getElementById("app");
+
+  if (app) {
+    // Create input field
+    const inputField = document.createElement("input");
+    inputField.type = "text";
+    inputField.id = "inputField";
+    inputField.placeholder = "Enter Address";
+
+    // Create button
+    const requestButton = document.createElement("button");
+    requestButton.textContent = "Request Testnet Coins";
+    requestButton.onclick = handleSubmit;
+
+    // Create result display areas
+    const resultDisplay = document.createElement("pre");
+    resultDisplay.id = "result";
+
+    const errorDisplay = document.createElement("pre");
+    errorDisplay.id = "error";
+
+    // Append elements to the app
+    app.appendChild(inputField);
+    app.appendChild(requestButton);
+    app.appendChild(resultDisplay);
+    app.appendChild(errorDisplay);
+  } else {
+    console.error("Element with ID 'app' was not found in the document.");
+  }
+}
+
+initializeFaucetUI();
