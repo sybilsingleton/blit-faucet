@@ -13,7 +13,7 @@
     "vite": "^4.5.0"
   },
   "dependencies": {
-    "@blitchain/blitjs": "^1.4.3",
+    "@blitchain/blitjs": "^1.6.0",
     "@cosmjs/amino": "^0.32.0-rc.1",
     "@cosmjs/launchpad": "^0.27.1",
     "@cosmjs/proto-signing": "^0.32.0-rc.1",

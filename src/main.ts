@@ -14,6 +14,7 @@ declare global {
     queryFunction: any;
   }
 }
+
 // @ts-ignore
 BigInt.prototype["toJSON"] = function () {
   return this.toString();
@@ -23,17 +24,24 @@ import { default as blitjs, experimentalHelpers } from "@blitchain/blitjs";
 let { makeKeplrClient, makeJsClient, runFunction, queryFunction } =
   experimentalHelpers;
 
-//let rpcEndpoint = "http://localhost:26657";
-//let restEndpoint = "http://localhost:1317";
-let rpcEndpoint = "http://rpc.testnet.blitchain.net";
-let restEndpoint = "http://rest.testnet.blitchain.net";
+let rpcEndpoint = "https://testnet-rpc.blitchain.net";
+let restEndpoint = "https://testnet-api.blitchain.net";
 
 
 let queryClient = await blitjs.blit.ClientFactory.createLCDClient({
   restEndpoint,
 });
 
-let msgClient = await makeKeplrClient({ rpcEndpoint, restEndpoint });
+var msgClient
+try {
+  msgClient = await makeKeplrClient({ rpcEndpoint, restEndpoint });
+} catch (e) {
+  console.log("Keplr not found");
+  document.getElementById("app").innerHTML =
+    "Keplr not found. Please enable Keplr and try again.";
+  throw e;
+}
+
 
 // @ts-ignore
 let address = (await msgClient.signer.getAccounts())[0].address;
@@ -42,7 +50,7 @@ let balanceResponse = await queryClient.cosmos.bank.v1beta1.allBalances({
   resolve_denom: true,
 });
 console.log("keplr address", address);
-console.log("keplr balance:", balanceResponse.balances[0]);
+console.log("keplr balance:", balanceResponse.balances);
 
 const mnemonic =
   "rhythm snake innocent moon husband gossip man toe industry senior essence summer traffic since parent thing limit void add perfect vague undo lecture flame";
@@ -56,10 +64,10 @@ let jsBalanceResponse = await queryClient.cosmos.bank.v1beta1.allBalances({
   address: jsAddress,
   resolve_denom: true,
 });
-console.log("js balance:", jsBalanceResponse.balances[0]);
+console.log("js balance:", jsBalanceResponse.balances);
 
 // Optional: If you want console access for debugging
-//window.blitjs = blitjs;
+window.blitjs = blitjs;
 window.msgClient = msgClient;
 window.jsClient = jsClient;
 window.queryClient = queryClient;
@@ -111,16 +119,16 @@ function clearResult() {
   }
 }
 
-function handleResult(result: any) {
-  console.log("Result: ", result);
+function handleResult({result}) {
+  console.log("handleResult: ", result);
 
   const resultElement = document.getElementById("result");
   if (resultElement) {
-    resultElement.innerHTML = JSON.stringify(result.result, null, 2);
+    resultElement.innerHTML = JSON.stringify(result, null, 2);
   }
 }
 function handleError(error: any) {
-  console.log("Error: ", error);
+  console.log("handleError: ", error);
   const errorElement = document.getElementById("error");
   if (errorElement) {
     errorElement.innerHTML = error.toString(); // Convert error to string if it's not already
