@@ -37,8 +37,8 @@ try {
   msgClient = await makeKeplrClient({ rpcEndpoint, restEndpoint });
 } catch (e) {
   console.log("Keplr not found");
-  document.getElementById("app").innerHTML =
-    "Keplr not found. Please enable Keplr and try again.";
+  let el = document.getElementById("app")
+  if (el) el.innerHTML = "Keplr not found. Please enable Keplr and try again.";
   throw e;
 }
 
@@ -119,7 +119,7 @@ function clearResult() {
   }
 }
 
-function handleResult({result}) {
+function handleResult({result} : {result: any}) {
   console.log("handleResult: ", result);
 
   const resultElement = document.getElementById("result");
