@@ -12,6 +12,9 @@ declare global {
     makeJsClient: any;
     runFunction: any;
     queryFunction: any;
+    rpcEndpoint: string;
+    restEndpoint: string;
+
   }
 }
 
@@ -24,8 +27,9 @@ import { default as blitjs, experimentalHelpers } from "@blitchain/blitjs";
 let { makeKeplrClient, makeJsClient, runFunction, queryFunction } =
   experimentalHelpers;
 
-let rpcEndpoint = "https://testnet-rpc.blitchain.net";
-let restEndpoint = "https://testnet-api.blitchain.net";
+let rpcEndpoint = window.rpcEndpoint || "https://testnet-rpc.blitchain.net";
+let restEndpoint = window.restEndpoint || "https://testnet-api.blitchain.net";
+
 
 
 let queryClient = await blitjs.blit.ClientFactory.createLCDClient({
