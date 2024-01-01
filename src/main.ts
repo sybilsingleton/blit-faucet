@@ -14,6 +14,7 @@ declare global {
     queryFunction: any;
     rpcEndpoint: string;
     restEndpoint: string;
+    scriptAddress: string;
 
   }
 }
@@ -99,8 +100,7 @@ function handleSubmit() {
   clearResult();
   runFunction({
     msgClient: jsClient,
-    script_address:
-      "blit1yyey4v836rssq29ny7n0yyxtj3tkhm6ehq6t5wmnt3n7gf2chydstqygew",
+    script_address: window.scriptAddress || "blit1yyey4v836rssq29ny7n0yyxtj3tkhm6ehq6t5wmnt3n7gf2chydstqygew",
     caller_address: jsAddress,
     function_name: "faucet",
     kwargs: { address },
