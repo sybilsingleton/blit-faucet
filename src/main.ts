@@ -37,7 +37,8 @@ let queryClient = await blitjs.blit.ClientFactory.createLCDClient({
   restEndpoint,
 });
 
-var msgClient
+/*
+ * var msgClient
 try {
   msgClient = await makeKeplrClient({ rpcEndpoint, restEndpoint });
 } catch (e) {
@@ -49,13 +50,14 @@ try {
 
 
 // @ts-ignore
-let address = (await msgClient.signer.getAccounts())[0].address;
+ * let address = (await msgClient.signer.getAccounts())[0].address;
 let balanceResponse = await queryClient.cosmos.bank.v1beta1.allBalances({
   address,
   resolve_denom: true,
 });
 console.log("keplr address", address);
 console.log("keplr balance:", balanceResponse.balances);
+*/
 
 const mnemonic =
   "rhythm snake innocent moon husband gossip man toe industry senior essence summer traffic since parent thing limit void add perfect vague undo lecture flame";
@@ -73,10 +75,10 @@ console.log("js balance:", jsBalanceResponse.balances);
 
 // Optional: If you want console access for debugging
 window.blitjs = blitjs;
-window.msgClient = msgClient;
+//window.msgClient = msgClient;
 window.jsClient = jsClient;
 window.queryClient = queryClient;
-window.address = address;
+//window.address = address;
 window.jsAddress = jsAddress;
 window.makeKeplrClient = makeKeplrClient;
 window.makeJsClient = makeJsClient;
